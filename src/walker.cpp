@@ -3,13 +3,16 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/LaserScan.h>
 
+bool near_obstacle = false;
+double threshold = 0.2;
+
 void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg) {
     double front = msg->ranges[0];
     if (front > msg->range_min && front < msg->range_max){
-        ROS_INFO_STREAM("The closest obstacle in front is " << front << " meters away");
-    } else {
-        ROS_INFO_STREAM("No obstacle detected");
-    }
+        if (front < threshold){
+            near_obstacle = true;
+        }
+    } 
 }
 
 int main(int argc, char **argv) {
@@ -24,17 +27,17 @@ int main(int argc, char **argv) {
 
   ros::Rate loop_rate(1);
 
+  vel.linear.x = 0.1;
+  vel_pub.publish(vel);
+
   while (ros::ok()){
-    // int linear_vel = rand() % 2;
-    // vel.linear.x = linear_vel;
 
-    // int angular_vel = rand() % 2;
-    // vel.angular.z = angular_vel;
-
-    // ROS_INFO_STREAM("Linear Velocity: " << linear_vel <<
-    //                 " | Angular Velocity: " << angular_vel);
-
-    // vel_pub.publish(vel);
+    if (near_obstacle){
+        ROS_WARN_STREAM("Got too close to an obstacle. Stopping");
+        vel.linear.x = 0;
+        vel_pub.publish(vel);
+        break;
+    }
 
     ros::spinOnce();
   }
