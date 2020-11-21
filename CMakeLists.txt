@@ -107,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ # INCLUDE_DIRS include
 #  LIBRARIES turtlebot_walker
 #  CATKIN_DEPENDS gazebo gazebo_ros geometry_msgs nav_msgs roscpp sensor_msgs std_msgs tf
 #  DEPENDS system_lib
@@ -122,6 +122,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/include
 )
 
 ## Declare a C++ library
