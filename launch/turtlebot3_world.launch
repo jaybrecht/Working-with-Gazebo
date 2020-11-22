@@ -3,6 +3,8 @@
   <arg name="x_pos" default="-2.0"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
+  <arg name="record" default="false"/>
+  <arg name="avoid" default="true"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/turtlebot3_world.world"/>
@@ -16,4 +18,12 @@
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+
+  <node pkg="turtlebot_walker" type="walker" name="walker" output="screen"
+        if="$(arg avoid)"/>
+
+  <node pkg="rosbag" type="record" name="rosbag_record_walker"
+        args="record -a -o $(find turtlebot_walker)/results/ -x /camera/(.*)" 
+        if="$(arg record)"/>
+
 </launch>
