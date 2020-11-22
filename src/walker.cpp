@@ -75,8 +75,10 @@ void TurtlebotWalker::navigate() {
         drive();
 
         if (near_obstacle){
+            ROS_INFO_STREAM("Encountered an obstacle. Rotating until clear.");
             stop();
             rotateUntilClear();
+            ROS_INFO_STREAM("Way ahead is clear. Driving forward");
         }
 
         ros::spinOnce();
