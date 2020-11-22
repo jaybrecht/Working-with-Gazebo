@@ -1,12 +1,15 @@
-#include <vector>
-#include "ros/ros.h"
+// Copyright [2020] Justin Albrecht
+
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/LaserScan.h>
+#include <vector>
+#include "ros/ros.h"
 #include "../include/TurtlebotWalker.h"
 
 TurtlebotWalker::TurtlebotWalker(double ds, double ts) {
     vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1, true);
-    scan_sub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 10, &TurtlebotWalker::lidarCallback, this);
+    scan_sub = nh.subscribe<sensor_msgs::LaserScan>("/scan", 10,
+        &TurtlebotWalker::lidarCallback, this);
     near_obstacle = false;
     front_clear = true;
     obs_threshold = 0.4;
@@ -14,15 +17,18 @@ TurtlebotWalker::TurtlebotWalker(double ds, double ts) {
     turn_speed = ts;
 }
 
-void TurtlebotWalker::lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg) {
+void TurtlebotWalker::lidarCallback(
+                const sensor_msgs::LaserScan::ConstPtr& msg) {
     int cone_angle = 45;
     std::vector<double> front_cone;
     std::vector<double> b;
 
-    b = std::vector<double>(msg->ranges.begin(),msg->ranges.begin()+cone_angle);
-    front_cone = std::vector<double>(msg->ranges.end()-cone_angle,msg->ranges.end());
+    b = std::vector<double>(msg->ranges.begin(),
+        msg->ranges.begin()+cone_angle);
+    front_cone = std::vector<double>(msg->ranges.end()-cone_angle,
+        msg->ranges.end());
 
-    front_cone.insert(front_cone.end(),b.begin(),b.end());
+    front_cone.insert(front_cone.end(), b.begin(), b.end());
 
     front_clear = true;
 
@@ -50,7 +56,6 @@ void TurtlebotWalker::turn() {
 }
 
 void TurtlebotWalker::stop() {
-
     geometry_msgs::Twist vel;
     vel.linear.x = 0;
     vel.angular.z = 0;
@@ -59,10 +64,10 @@ void TurtlebotWalker::stop() {
     ros::Duration(0.5).sleep();
 }
 
-void TurtlebotWalker::rotateUntilClear(){
+void TurtlebotWalker::rotateUntilClear() {
     turn();
     ros::Rate rate(10);
-    while (!front_clear){
+    while (!front_clear) {
         rate.sleep();
         ros::spinOnce();
     }
@@ -71,10 +76,10 @@ void TurtlebotWalker::rotateUntilClear(){
 }
 
 void TurtlebotWalker::navigate() {
-    while (ros::ok()){
+    while (ros::ok()) {
         drive();
 
-        if (near_obstacle){
+        if (near_obstacle) {
             ROS_INFO_STREAM("Encountered an obstacle. Rotating until clear.");
             stop();
             rotateUntilClear();
@@ -83,13 +88,12 @@ void TurtlebotWalker::navigate() {
 
         ros::spinOnce();
     }
-
 }
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "walker");
 
-  TurtlebotWalker walker(0.2,0.2);
+  TurtlebotWalker walker(0.2, 0.2);
 
   walker.navigate();
 }
